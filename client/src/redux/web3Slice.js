@@ -22,24 +22,16 @@ export const createInvoice = createAsyncThunk(
     'web3/createInvoice',
     async ({ discounts, client, products }) => {
         const beneficiary = window.ethereum.selectedAddress
-        // const validProduct = {
-        //     name: 'Some product',
-        //     kind: '0',
-        //     price: 1,
-        //     quantity: 1,
-        //     usdPrice: 100,
-        //     upc: '12093',
         //     imageUrl: 'https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png'
-        // };
         try {
             const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
             const ret = await pos.methods.createInvoice(products, discounts, client, beneficiary)
                 .send({ from: beneficiary })
             console.log(ret)
         } catch (e) {
-            console.log(e)
+            return e
         }
-
+        return true
     },
 )
 
@@ -47,6 +39,18 @@ export const loadInvoice = createAsyncThunk('web3/loadInvoice', async (id) => {
     const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
     const invoice = await pos.methods.getInvoiceById(id).call()
     return invoice
+})
+
+export const getInvoices = createAsyncThunk('web3/getInvoices', async () => {
+    const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+    const invoices = await pos.methods.getInvoicesFor(window.ethereum.selectedAddress).call()
+    return invoices
+})
+
+export const getBalance = createAsyncThunk('web3/getBalance', async () => {
+    const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+    const balance = await pos.methods.getBalanceOf(window.ethereum.selectedAddress).call()
+    return balance
 })
 
 export const getInvoiceProducts = createAsyncThunk('web3/getInvoiceProducts', (id) => {
@@ -65,7 +69,9 @@ export const payInvoice = createAsyncThunk('web3/payInvoice', async (id, thunkAP
         console.log(ret)
     } catch (e) {
         console.log(e)
+        return false
     }
+    return true
 })
 
 export const web3Slice = createSlice({
@@ -81,9 +87,11 @@ export const web3Slice = createSlice({
             console.log(action.error)
         })
         builder.addCase(loadInvoice.pending, (state, action) => {
+            debugger
             state.loadingInvoice = true;
         })
         builder.addCase(loadInvoice.fulfilled, (state, action) => {
+            debugger
             state.loadingInvoice = false;
         })
     },

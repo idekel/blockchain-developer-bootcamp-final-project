@@ -115,6 +115,16 @@ contract("POS", function (accounts) {
       assert.strictEqual(ret, false);
     });
 
+    it("Should filter invoice by owner", async () => {
+      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, {from: lucy});
+      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, {from: _owner});
+
+      const invoices = await instance.getInvoicesFor(_owner)
+
+      assert.equal(1, invoices.length);
+      assert.equal(invoices[0].owner == _owner, true);
+    });
+
   });
 
 

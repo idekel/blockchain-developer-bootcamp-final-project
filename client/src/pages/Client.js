@@ -1,87 +1,16 @@
-import { useState } from "react"
-import { Row, Col, Form, Button, Modal, Table } from "react-bootstrap"
+import { useState } from 'react'
+import { Row, Col, Form, Button, Modal, Table, Alert } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
-import Web3 from "web3"
-import { loadInvoice, getInvoiceProducts, payInvoice } from "../redux/web3Slice"
+import { loadInvoice } from '../redux/web3Slice'
+import { InvoiceDetail } from '../components/InvoiceDetail'
 
-
-const InvoiceDetail = (props) => {
-
-    const [products, setProducts] = useState([])
-    const dispatch = useDispatch()
-
-    const loadProducts = async () => {
-        const ret = await dispatch(getInvoiceProducts(props.invoice.id))
-        console.log(ret)
-        setProducts(ret.payload ?? [])
-    }
-
-    let child = <Button onClick={products.length == 0 ? loadProducts : () => setProducts([]) }>{products.length == 0 ? 'Load products' : 'Hide products'}</Button>
-    let productsTable = null
-
-    if (products.length > 0) {
-        productsTable = <Table>
-            <thead>
-                <tr>
-                    <td>Image</td>
-                    <td>Name</td>
-                    <td>Price</td>
-                    <td>Quantity</td>
-                </tr>
-            </thead>
-            <tbody>
-                {products.map((product) => <tr>
-                    <td>{product.imageUrl}</td>
-                    <td>{product.name}</td>
-                    <td>{product.price}</td>
-                    <td>{product.quantity}</td>
-                </tr>)}
-            </tbody>
-        </Table>
-    }
-
-    return <>
-        <Modal
-            onHide={props.onHide}
-            size="lg"
-            centered
-            show={true}
-        >
-            <Modal.Body>
-                <Row>
-                    <Col>
-                        <div><span>Number #: {props.invoice.id}</span></div>
-                        <div><span>Creator: {props.invoice.owner}</span></div>
-                        <div><span>Merchant: {props.invoice.beneficiary}</span></div>
-                        <div><span>Custumer: {props.invoice.buyer}</span></div>
-                        <div><span>Subtotal: {Web3.utils.fromWei(props.invoice.subtotal)} Eth</span></div>
-                        <div><span>Discounts: {Web3.utils.fromWei(props.invoice.discounts)} Eth</span></div>
-                        <div><span>Total: {Web3.utils.fromWei(props.invoice.total)} Eth</span></div>
-                    </Col>
-                </Row>
-                <br />
-                <Row>
-                    <Col>
-                        {productsTable}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {child}
-                    </Col>
-                    <Col>
-                        <Button onClick={() => dispatch(payInvoice(props.invoice.id))}>Pay invoice</Button>
-                    </Col>
-                </Row>
-            </Modal.Body>
-        </Modal>
-    </>
-}
 
 export const ClientHome = () => {
     const dispatch = useDispatch()
     const [invoiceId, setInvoiceId] = useState(0)
     const [invoice, setInvoice] = useState(null)
+    const [showInvoicePaySuccess, setShowInvoicePaySuccess] = useState(false)
+    const [showInvoicePayFail, setShowInvoicePayFail] = useState(false)
 
     const getInvoiceById = async () => {
         const ret = await dispatch(loadInvoice(invoiceId))
@@ -91,8 +20,32 @@ export const ClientHome = () => {
 
     let invoiceModal = null
     if (invoice != null) {
-        const args = { invoice, onHide: () => setInvoice(null) }
+        const onHide = (ret) => {
+            setInvoice(null)
+            if (ret){
+                setShowInvoicePaySuccess(true)
+            } else if (ret === false){
+                setShowInvoicePayFail(true)
+            }
+            setTimeout(() => {
+                setShowInvoicePaySuccess(false)
+                setShowInvoicePayFail(false)
+            }, 5000)
+        }
+        const args = { invoice, onHide }
         invoiceModal = <InvoiceDetail {...args} />
+    }
+
+    let payInvoiceAlert = null
+    if (showInvoicePaySuccess){
+        payInvoiceAlert = <Alert variant="success">
+        Invoice paid successfuly
+      </Alert>
+    }
+    else if (showInvoicePayFail){
+        payInvoiceAlert = <Alert variant="danger">
+        Failed to pay Invoice
+      </Alert>
     }
 
     return <>
@@ -110,6 +63,12 @@ export const ClientHome = () => {
                 <Button onClick={getInvoiceById}>
                     Load
                 </Button>
+            </Col>
+        </Row>
+        <br />
+        <Row>
+            <Col md={4}>
+                {payInvoiceAlert}
             </Col>
         </Row>
         {invoiceModal}

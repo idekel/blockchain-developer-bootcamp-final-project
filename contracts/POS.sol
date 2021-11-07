@@ -108,7 +108,7 @@ contract POS {
         if (invoices.length == 0){
             return 1;
         }
-        return invoices.length;
+        return invoices.length + 1;
     }
 
     function getSubTotal(Product[] memory products)
@@ -125,6 +125,28 @@ contract POS {
         require(invoices.length >= id);
         require(id > 0);
         return invoices[id - 1];
+    }
+
+    function getInvoicesFor(address ownerA) public view returns(Invoice[] memory){
+        uint len = 0;
+        uint MAX_ITEMS = 100;
+        for (uint i = 0; i < invoices.length; i++){
+            if (invoices[i].owner == ownerA){
+                len++;
+                if (len == MAX_ITEMS) break;
+            }
+        }
+        Invoice[] memory ownerInvoices = new Invoice[](len);
+        uint currentIndex = 0;
+        for (uint i = 0; i < invoices.length; i++){
+            if (invoices[i].owner == ownerA){
+                ownerInvoices[currentIndex] = invoices[i];
+                currentIndex++;
+                if (currentIndex == MAX_ITEMS) break;
+            }
+        }
+
+        return ownerInvoices;
     }
 
     function getInvoiceProducts(uint id) public view returns(Product[] memory) {

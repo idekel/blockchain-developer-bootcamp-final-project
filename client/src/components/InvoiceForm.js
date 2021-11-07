@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Row, Col, Form, Button, Modal, Table } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
 import { createInvoice } from '../redux/web3Slice'
+import { sendNotification } from '../redux/appSlice'
 import Web3 from 'web3'
 
 
@@ -29,7 +30,7 @@ const ProductForm = (props) => {
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>Kind</Form.Label>
-                    <Form.Select value={name} onChange={e => {setKind(e.target.value)}}>
+                    <Form.Select value={name} onChange={e => { setKind(e.target.value) }}>
                         <option value="0">Good</option>
                         <option value="1">Service</option>
                     </Form.Select>
@@ -56,7 +57,7 @@ const ProductForm = (props) => {
                 </Form.Group>
             </Modal.Body>
             <br />
-            <Button onClick={() => props.onProductCreated({kind, name, imageUrl, upc, price: Web3.utils.toWei(price), usdPrice, quantity})}>Add</Button>
+            <Button onClick={() => props.onProductCreated({ kind, name, imageUrl, upc, price: Web3.utils.toWei(price), usdPrice, quantity })}>Add</Button>
         </Modal>
     </>
 }
@@ -69,8 +70,16 @@ export const InvoiceForm = () => {
     const [showAddProduct, setShowAddProduct] = useState(false)
     const [products, setProducts] = useState([])
 
-    const submitInvoice = () => {
-        dispatch(createInvoice({ discounts: Web3.utils.toWei(discounts), client, products }))
+    const submitInvoice = async () => {
+        const { payload } = await dispatch(createInvoice({ discounts: Web3.utils.toWei(discounts), client, products }))
+        if (payload === true) {
+            dispatch(sendNotification({ message: 'Transaction completed successfuly.', title: 'Success' }))
+            setClient('')
+            setDiscount('0')
+            setProducts([])
+        } else {
+            dispatch(sendNotification({ message: `Trasanction failed. Error: ${payload.message}`, title: 'Error', type: 'danger' }))
+        }
     }
 
     const onHideProductForm = () => setShowAddProduct(false)
@@ -86,17 +95,17 @@ export const InvoiceForm = () => {
     }
 
     let productForm = null
-    if (showAddProduct){
+    if (showAddProduct) {
         productForm = <ProductForm onHide={onHideProductForm} onProductCreated={onProductCreated} />
     }
 
     let tbody = null
-    if (products.length > 0){
+    if (products.length > 0) {
         const trs = []
-        for (let i = 0; i < products.length; i++){
+        for (let i = 0; i < products.length; i++) {
             const product = products[i]
             const tr = <tr>
-                <td>{i+1}</td>
+                <td>{i + 1}</td>
                 <td>{product.name}</td>
                 <td>{product.price}</td>
                 <td>{product.quantity}</td>
