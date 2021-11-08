@@ -18,6 +18,18 @@ export const connectToMetaMask = createAsyncThunk('web3/connectToMetaMask',
         thunkAPI.dispatch(setConnected(true))
     })
 
+export const listenForNewInvoices = createAsyncThunk('web3/listenForNewInvoices',
+    async () => {
+        const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+        pos.events.newInvoice({}, (error, event) => {
+            console.log(error)
+        }).on('connected', (subscriptionId) => {
+            console.log(subscriptionId)
+        }).on('data', (event) => {
+            console.log(event)
+        })
+    })
+
 export const createInvoice = createAsyncThunk(
     'web3/createInvoice',
     async ({ discounts, client, products }) => {

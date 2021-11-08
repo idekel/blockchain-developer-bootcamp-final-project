@@ -2,19 +2,23 @@
 pragma solidity >=0.5.16 <0.9.0;
 pragma experimental ABIEncoderV2;
 
+/// @title A Point of Sale
+/// @author Idekel A. Santana 
 contract POS {
+    /// The deployer of the contract
     address public owner = msg.sender;
 
-    //Beneficiaris' balances
+    /// Beneficiaris' balances
     mapping(address => uint256) private balances;
-
+    
     Invoice[] private invoices;
 
+    /// @notice Because solidty limitations is simpler to keep invoice products apart
     mapping(uint => Product[]) private invoicesProducts;
 
     //Events
-    event newInvoice(address indexed buyer, uint256 indexed id);
-    event invoicePaid(address indexed owner, uint256 indexed id);
+    event NewInvoice(address indexed buyer, uint256 indexed id);
+    event InvoicePaid(address indexed owner, uint256 indexed id);
 
     // Types
 
@@ -66,6 +70,11 @@ contract POS {
     }
 
 
+    /// @notice Create an invoice. Emits NewInvoice
+    /// @param products The list of products this invoice will contain. It can't be an empyt list
+    /// @param discounts Can be 0
+    /// @param buyer the buyer cuould be the default address(0). It could change when the invoice is paid
+    /// @param beneficiary The account that will receive the funds after the invoice is paid. Could be the same as invoice owner
     function createInvoice(
         Product[] memory products,
         uint256 discounts,
@@ -99,10 +108,11 @@ contract POS {
             container.push(products[i]);
         }
 
-        emit newInvoice(buyer, 1);
+        emit NewInvoice(buyer, 1);
 
         return id;
     }
+
 
     function getNextInvoceId() private view returns (uint256) {
         if (invoices.length == 0){
@@ -111,6 +121,7 @@ contract POS {
         return invoices.length + 1;
     }
 
+    /// @dev subtotal is the sum of each (product * quantity)
     function getSubTotal(Product[] memory products)
         public
         pure
@@ -121,12 +132,15 @@ contract POS {
         }
     }
 
+    /// @notice Gets an invoice by its ID. It does not return invoce's products
     function getInvoiceById(uint256 id) public view returns (Invoice memory) {
         require(invoices.length >= id);
         require(id > 0);
         return invoices[id - 1];
     }
 
+    /// @notice Get a list of invoces by its Owner. Notice that owner may not be the same as the beneificary
+    /// @dev Is it better to use a mapping to simulate an array and avoid the two loops?
     function getInvoicesFor(address ownerA) public view returns(Invoice[] memory){
         uint len = 0;
         uint MAX_ITEMS = 100;
@@ -149,6 +163,7 @@ contract POS {
         return ownerInvoices;
     }
 
+    /// @notice return the list of product for an invoice
     function getInvoiceProducts(uint id) public view returns(Product[] memory) {
         Invoice memory invoice = getInvoiceById(id);
         require(invoice.id == id, "IDs don't match");
@@ -167,6 +182,7 @@ contract POS {
         return products.length > 0;
     }
 
+    /// @notice Marks an invoice as deleted
     function deleteInvoice(uint id) public validInvoiceId(id) invoiceOwner(id) returns(uint) {
         Invoice storage invoice = invoices[id - 1];
         require(invoice.status != Status.Paid);
@@ -174,6 +190,7 @@ contract POS {
         return invoice.id; 
     }
 
+    /// @notice Marks the invoice as paid and set the payer to the current account
     function payInvoice(uint id) public payable validInvoiceId(id) {
         Invoice storage invoice = invoices[id  - 1];
         require(invoice.owner != msg.sender);
@@ -181,11 +198,13 @@ contract POS {
         require(msg.value >= invoice.total);
 
         invoice.status = Status.Paid;
+        invoice.payer = msg.sender;
         balances[invoice.beneficiary] += msg.value;
 
-        emit invoicePaid(invoice.owner, id);
+        emit InvoicePaid(invoice.owner, id);
     }
 
+    /// @notice Gets the balance of a beneficiary
     function getBalanceOf(address beneficiary) public view returns(uint) {
         return balances[beneficiary];
     }

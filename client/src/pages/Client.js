@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Row, Col, Form, Button, Modal, Table, Alert } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
-import { loadInvoice } from '../redux/web3Slice'
+import { loadInvoice, listenForNewInvoices } from '../redux/web3Slice'
 import { InvoiceDetail } from '../components/InvoiceDetail'
 
 
@@ -11,6 +11,10 @@ export const ClientHome = () => {
     const [invoice, setInvoice] = useState(null)
     const [showInvoicePaySuccess, setShowInvoicePaySuccess] = useState(false)
     const [showInvoicePayFail, setShowInvoicePayFail] = useState(false)
+
+    useEffect(() => {
+        dispatch(listenForNewInvoices())
+    }, [])
 
     const getInvoiceById = async () => {
         const ret = await dispatch(loadInvoice(invoiceId))
