@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.16 <0.9.0;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
+
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /// @title A Point of Sale
 /// @author Idekel A. Santana 
 contract POS {
+    using SafeMath for uint;
+
     /// The deployer of the contract
     address public owner = msg.sender;
 
@@ -87,7 +91,7 @@ contract POS {
 
         uint subtotal = getSubTotal(products);
         require(subtotal > 0);
-        uint total = subtotal - discounts;
+        uint total = subtotal.sub(discounts);
         require(total > 0);
 
         uint id = getNextInvoceId();
@@ -128,7 +132,7 @@ contract POS {
         returns (uint256 subtotal)
     {
         for (uint256 i; i < products.length; i++) {
-            subtotal += products[i].price * products[i].quantity;
+            subtotal = subtotal.add(products[i].price.mul(products[i].quantity));
         }
     }
 
@@ -198,7 +202,7 @@ contract POS {
         require(msg.value >= invoice.total);
 
         invoice.status = Status.Paid;
-        invoice.payer = msg.sender;
+        invoice.buyer = msg.sender;
         balances[invoice.beneficiary] += msg.value;
 
         emit InvoicePaid(invoice.owner, id);
