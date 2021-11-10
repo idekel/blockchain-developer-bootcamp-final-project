@@ -85,39 +85,39 @@ contract("POS", function (accounts) {
     });
 
     it('Should return false when a product has invalid price', async () => {
-      const ret = await instance.validateProducts([validProduct, {...validProduct, price: 0}]);
+      const ret = await instance.validateProducts([validProduct, { ...validProduct, price: 0 }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid usdPrice', async () => {
-      const ret = await instance.validateProducts([validProduct, {...validProduct, usdPrice: 0}]);
+      const ret = await instance.validateProducts([validProduct, { ...validProduct, usdPrice: 0 }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid quanity', async () => {
-      const ret = await instance.validateProducts([validProduct, {...validProduct, quantity: 0}]);
+      const ret = await instance.validateProducts([validProduct, { ...validProduct, quantity: 0 }]);
 
       assert.strictEqual(ret, false);
     });
 
 
     it('Should return false when a product has invalid upc', async () => {
-      const ret = await instance.validateProducts([validProduct, {...validProduct, upc: ''}]);
+      const ret = await instance.validateProducts([validProduct, { ...validProduct, upc: '' }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid imageUrl', async () => {
-      const ret = await instance.validateProducts([validProduct, {...validProduct, imageUrl: ''}]);
+      const ret = await instance.validateProducts([validProduct, { ...validProduct, imageUrl: '' }]);
 
       assert.strictEqual(ret, false);
     });
 
     it("Should filter invoice by owner", async () => {
-      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, {from: lucy});
-      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, {from: _owner});
+      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, { from: lucy });
+      await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, { from: _owner });
 
       const invoices = await instance.getInvoicesFor(_owner)
 
@@ -141,53 +141,80 @@ contract("POS", function (accounts) {
     });
 
     it('Should revert. Only owner can delete invoice', async () => {
-      const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await catchRevert(instance.deleteInvoice(id), {from: _owner});
+      await catchRevert(instance.deleteInvoice(id), { from: _owner });
     });
 
     it('Should revert. If owner tryies to pay', async () => {
-      const ret = await instance.createInvoice([validProduct], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await catchRevert(instance.payInvoice(id, {from: lucy, value: 1}));
+      await catchRevert(instance.payInvoice(id, { from: lucy, value: 1 }));
     });
 
     it('Should revert. If beneficiary tryies to pay', async () => {
-      const ret = await instance.createInvoice([validProduct], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await catchRevert(instance.payInvoice(id, {from: _owner, value: 1}));
+      await catchRevert(instance.payInvoice(id, { from: _owner, value: 1 }));
     });
 
     it('Should revert. If money sent is less than total', async () => {
-      const ret = await instance.createInvoice([{...validProduct, quantity: 2}], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await catchRevert(instance.payInvoice(id, {from: bob, value: 1}));
+      await catchRevert(instance.payInvoice(id, { from: bob, value: 1 }));
     });
 
     it('Should mark receive as paid', async () => {
-      const ret = await instance.createInvoice([{...validProduct, quantity: 2}], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await instance.payInvoice(id, {from: bob, value: 2});
+      await instance.payInvoice(id, { from: bob, value: 2 });
       const invoice = await instance.getInvoiceById(id);
 
       assert.equal(invoice.status, POS.Status.Paid);
     });
 
     it('Should increase beneficiary balance', async () => {
-      const ret = await instance.createInvoice([{...validProduct, quantity: 2}], 0, bob, _owner, {from: lucy});
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
-      await instance.payInvoice(id, {from: bob, value: 2});
+      await instance.payInvoice(id, { from: bob, value: 2 });
       const invoice = await instance.getInvoiceById(id);
 
       assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 2);
     });
 
   });
+
+  describe('Withdraw', () => {
+
+    it('Should withdraw all beneficiary balance', async () => {
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
+      const id = ret.logs[0].args.id;
+      await instance.payInvoice(id, { from: bob, value: 2 });
+      const balance = (await instance.getBalanceOf(_owner)).toNumber();
+
+      await instance.withdraw({from: _owner})
+
+      assert.equal(balance, 2)
+      assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 0)
+    });
+
+    it('Owner Shouldn\'t withdraw beneficiary balance', async () => {
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
+      const id = ret.logs[0].args.id;
+      await instance.payInvoice(id, { from: bob, value: 2 });
+
+      await instance.withdraw({from: lucy})
+
+      assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 2)
+      assert.equal((await instance.getBalanceOf(lucy)).toNumber(), 0)
+    });
+
+  })
 
 });

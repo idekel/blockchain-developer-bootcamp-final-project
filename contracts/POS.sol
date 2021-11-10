@@ -212,4 +212,14 @@ contract POS {
     function getBalanceOf(address beneficiary) public view returns(uint) {
         return balances[beneficiary];
     }
+
+    /// @notice Withdraw the current account balance.
+    function withdraw() public {
+        uint beneficiaryBalance = balances[msg.sender];
+        if (beneficiaryBalance > 0){
+            balances[msg.sender] = 0;
+            (bool sent, ) = msg.sender.call{value: beneficiaryBalance}("");
+            require(sent, "Failed to withdraw beneficiary balance");
+        }
+    }
 }
