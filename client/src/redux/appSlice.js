@@ -7,7 +7,8 @@ const initialState = {
         message: '',
         type: 'light',
         title: ''
-    }
+    },
+    isLoading: false,
 }
 
 export const appSlice = createSlice({
@@ -25,9 +26,12 @@ export const appSlice = createSlice({
         closeNotitfication: (state) => {
             state.notification = { show: false, message: '', type: 'light', title: '', }
         },
+        setIsLoading: (state, action) => {
+            state.isLoading = action.payload
+        }
     }
 })
 
-export const { sendNotification, closeNotitfication } = appSlice.actions
+export const { sendNotification, closeNotitfication, setIsLoading } = appSlice.actions
 
 export default appSlice.reducer

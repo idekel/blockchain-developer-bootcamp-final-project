@@ -29,7 +29,7 @@ const NotificationCenter = () => {
 
   const onHide = () => dispatch(closeNotitfication())
 
-  const truncate = (str, len) => str.length > len ? str.substring(0, len) + '...' : str 
+  const truncate = (str, len) => str.length > len ? str.substring(0, len) + '...' : str
 
   return <ToastContainer position="top-end">
     <Toast onClose={onHide} show={notification.show} animation={false} bg={notification.type}>
@@ -49,6 +49,7 @@ const NotificationCenter = () => {
 
 function App() {
   return (
+
     <Container>
       <Router>
         <Switch>

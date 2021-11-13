@@ -86,6 +86,20 @@ export const payInvoice = createAsyncThunk('web3/payInvoice', async (id, thunkAP
     return true
 })
 
+export const sendWithdraw = createAsyncThunk('web3/withdraw', async (id, thunkAPI) => {
+    const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+    try {
+        const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+        const ret = await pos.methods.withdraw()
+            .send({ from: window.ethereum.selectedAddress})
+        console.log(ret)
+    } catch (e) {
+        console.log(e)
+        return false
+    }
+    return true
+})
+
 export const web3Slice = createSlice({
     name: 'web3',
     initialState,

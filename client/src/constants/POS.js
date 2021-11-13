@@ -1,4 +1,4 @@
-export const POS_ADDR = '0xd12c146799949D8e1f100c77910cF9AE7D5efFc3'
+export const POS_ADDR = '0x3971A317941D058D2B36634E983975D1e55452a3'
 
 
 export const POS_ABI = [
@@ -18,7 +18,7 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "name": "invoicePaid",
+    "name": "InvoicePaid",
     "type": "event"
   },
   {
@@ -37,11 +37,10 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "name": "newInvoice",
+    "name": "NewInvoice",
     "type": "event"
   },
   {
-    "constant": true,
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -51,12 +50,11 @@ export const POS_ABI = [
         "type": "address"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": false,
     "inputs": [
       {
         "components": [
@@ -124,12 +122,10 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": true,
     "inputs": [
       {
         "components": [
@@ -182,12 +178,11 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "pure",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",
@@ -245,12 +240,11 @@ export const POS_ABI = [
         "type": "tuple"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "address",
@@ -308,12 +302,11 @@ export const POS_ABI = [
         "type": "tuple[]"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",
@@ -366,12 +359,11 @@ export const POS_ABI = [
         "type": "tuple[]"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": true,
     "inputs": [
       {
         "components": [
@@ -424,12 +416,11 @@ export const POS_ABI = [
         "type": "bool"
       }
     ],
-    "payable": false,
     "stateMutability": "pure",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
@@ -445,12 +436,10 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
@@ -460,12 +449,11 @@ export const POS_ABI = [
     ],
     "name": "payInvoice",
     "outputs": [],
-    "payable": true,
     "stateMutability": "payable",
-    "type": "function"
+    "type": "function",
+    "payable": true
   },
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "address",
@@ -481,8 +469,15 @@ export const POS_ABI = [
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
