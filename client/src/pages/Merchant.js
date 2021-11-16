@@ -16,7 +16,7 @@ export const MerchantHome = () => {
 
     const onGetBalance = async () => {
         const ret = await dispatch(getBalance())
-        setBalance(Web3.utils.fromWei(ret.payload))
+        setBalance(Web3.utils.fromWei(ret.payload || '0'))
     }
 
     useEffect(() => {

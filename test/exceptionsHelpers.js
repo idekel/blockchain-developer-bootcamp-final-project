@@ -19,4 +19,5 @@ module.exports = {
     catchStackOverflow     : async function(promise) {await tryCatch(promise, "stack overflow"     );},
     catchStackUnderflow    : async function(promise) {await tryCatch(promise, "stack underflow"    );},
     catchStaticStateChange : async function(promise) {await tryCatch(promise, "static state change");},
+    tryCatch,
 };

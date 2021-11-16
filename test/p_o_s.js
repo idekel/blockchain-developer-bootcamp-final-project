@@ -1,5 +1,5 @@
 const POS = artifacts.require("POS");
-const { catchRevert } = require('./exceptionsHelpers');
+const { catchRevert, tryCatch } = require('./exceptionsHelpers');
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -193,25 +193,25 @@ contract("POS", function (accounts) {
   describe('Withdraw', () => {
 
     it('Should withdraw all beneficiary balance', async () => {
-      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 10000 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
-      await instance.payInvoice(id, { from: bob, value: 2 });
+      await instance.payInvoice(id, { from: bob, value: 10000 });
       const balance = (await instance.getBalanceOf(_owner)).toNumber();
 
       await instance.withdraw({from: _owner})
 
-      assert.equal(balance, 2)
+      assert.equal(balance, 10000)
       assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 0)
     });
 
-    it('Owner Shouldn\'t withdraw beneficiary balance', async () => {
-      const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
+    it('Owner Shouldn\'t be able to withdraw beneficiary balance', async () => {
+      const ret = await instance.createInvoice([{ ...validProduct, quantity: 10000 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
-      await instance.payInvoice(id, { from: bob, value: 2 });
+      await instance.payInvoice(id, { from: bob, value: 10000 });
 
-      await instance.withdraw({from: lucy})
+      await tryCatch(instance.withdraw({from: lucy}), 'revert 10,000 is the minimun required to withdraw')
 
-      assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 2)
+      assert.equal((await instance.getBalanceOf(_owner)).toNumber(), 10000)
       assert.equal((await instance.getBalanceOf(lucy)).toNumber(), 0)
     });
 
