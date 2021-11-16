@@ -28,6 +28,7 @@ contract("POS", function (accounts) {
   describe('properties', () => {
 
     it("should has owner property", () => {
+      // The contract should have a owner property required for the Ownable design pattern
       assert.equal(typeof instance.owner, 'function', 'the contract has no owner')
     });
   });
@@ -35,22 +36,27 @@ contract("POS", function (accounts) {
   describe('Invoice validations & Creation', () => {
 
     it("should error out when products is empty", async () => {
+      // An invoice without products can't be created
       await catchRevert(instance.createInvoice([], 0, bob, lucy));
     });
 
     it("should error out when owner is isqual to buyer", async () => {
+      // Owner's can't create invoices for themselves
       await catchRevert(instance.createInvoice([validProduct], 0, _owner, lucy), { from: _owner });
     });
 
     it("Should have a subtotal higher than 0(zero)", async () => {
+      // Invoices must have a subtotal higher than 0
       await catchRevert(instance.createInvoice([{ ...validProduct, price: 0 }], 0, bob, lucy));
     });
 
     it("Should have a total higher than 0(zero)", async () => {
+      // Invoices must have a total higher than 0
       await catchRevert(instance.createInvoice([validProduct], 1, bob, lucy));
     });
 
     it("Invoice should have status pending when created", async () => {
+      // Invoices must be created with a Status == Pending. This means It hasn't been paid yet
       const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy);
 
       const invoice = await instance.getInvoiceById(ret.logs[0].args.id.toNumber())
@@ -59,6 +65,8 @@ contract("POS", function (accounts) {
     });
 
     it("Should have a subtotal equal to price * quantity", async () => {
+      // Makes sure calculculations are done properly on the contract
+      // invoice's subtotal is the sum of product price * quantity
       const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy);
       const invoice = await instance.getInvoiceById(ret.logs[0].args.id.toNumber())
 
@@ -66,6 +74,7 @@ contract("POS", function (accounts) {
     });
 
     it("Should have a total equal to subtoal - discounts", async () => {
+      // Make sure the invoice's total is calculated properly. subtotal - discouns
       const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 1, bob, lucy);
       const invoice = await instance.getInvoiceById(ret.logs[0].args.id.toNumber())
 
@@ -73,6 +82,8 @@ contract("POS", function (accounts) {
     });
 
     it("Should properly store products", async () => {
+      // Make sure products are stored properlly inside contract's state
+
       const ret = await instance.createInvoice([validProduct], 0, bob, lucy);
 
       const products = await instance.getInvoiceProducts(ret.logs[0].args.id.toNumber());
@@ -85,18 +96,21 @@ contract("POS", function (accounts) {
     });
 
     it('Should return false when a product has invalid price', async () => {
+      // Make sure products has valid prices
       const ret = await instance.validateProducts([validProduct, { ...validProduct, price: 0 }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid usdPrice', async () => {
+      // Make sure products has valid USD prices
       const ret = await instance.validateProducts([validProduct, { ...validProduct, usdPrice: 0 }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid quanity', async () => {
+      // Product should have a quantity higher than 0
       const ret = await instance.validateProducts([validProduct, { ...validProduct, quantity: 0 }]);
 
       assert.strictEqual(ret, false);
@@ -104,18 +118,21 @@ contract("POS", function (accounts) {
 
 
     it('Should return false when a product has invalid upc', async () => {
+      // UPC is a required field for products
       const ret = await instance.validateProducts([validProduct, { ...validProduct, upc: '' }]);
 
       assert.strictEqual(ret, false);
     });
 
     it('Should return false when a product has invalid imageUrl', async () => {
+      // Products must have images
       const ret = await instance.validateProducts([validProduct, { ...validProduct, imageUrl: '' }]);
 
       assert.strictEqual(ret, false);
     });
 
     it("Should filter invoice by owner", async () => {
+      // Filter invoices properlly by owner
       await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, { from: lucy });
       await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy, { from: _owner });
 
@@ -131,6 +148,7 @@ contract("POS", function (accounts) {
   describe('Invoice operations', () => {
 
     it('Should mark invoice as deleted', async () => {
+      // Invoices are marked with status Deleted but not deleted from the state
       const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, lucy);
       const id = ret.logs[0].args.id;
 
@@ -141,6 +159,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should revert. Only owner can delete invoice', async () => {
+      // Only the owner of invoice can delete it
       const ret = await instance.createInvoice([{ ...validProduct, price: 5, quantity: 2 }, validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -148,6 +167,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should revert. If owner tryies to pay', async () => {
+      // Owner can't pay their own invoices
       const ret = await instance.createInvoice([validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -155,6 +175,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should revert. If beneficiary tryies to pay', async () => {
+      // Beneficiaries can't pay their own invoices
       const ret = await instance.createInvoice([validProduct], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -162,6 +183,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should revert. If money sent is less than total', async () => {
+      // Should revert if user tries sending less ether than the total amount of the invoice
       const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -169,6 +191,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should mark receive as paid', async () => {
+      // Makes sure the status is changed to Paid when the invoice is properly paid
       const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -179,6 +202,7 @@ contract("POS", function (accounts) {
     });
 
     it('Should increase beneficiary balance', async () => {
+      // Makes sure beneficiary is properly increased when the invoice is properlly paid
       const ret = await instance.createInvoice([{ ...validProduct, quantity: 2 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
 
@@ -193,6 +217,7 @@ contract("POS", function (accounts) {
   describe('Withdraw', () => {
 
     it('Should withdraw all beneficiary balance', async () => {
+      // Beneficiary balance must be withdrawn all at once
       const ret = await instance.createInvoice([{ ...validProduct, quantity: 10000 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
       await instance.payInvoice(id, { from: bob, value: 10000 });
@@ -205,6 +230,7 @@ contract("POS", function (accounts) {
     });
 
     it('Owner Shouldn\'t be able to withdraw beneficiary balance', async () => {
+      // The owner of the origianl invoice can't withdraw balance from the beneficiary's balance
       const ret = await instance.createInvoice([{ ...validProduct, quantity: 10000 }], 0, bob, _owner, { from: lucy });
       const id = ret.logs[0].args.id;
       await instance.payInvoice(id, { from: bob, value: 10000 });
