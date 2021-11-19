@@ -28,7 +28,7 @@ The project will have 3 actors:
  * The test directory: Contain all unit tests for the POS contract
 
  ## Running the project
- 1. Install truffle and ganache
+ 1. Install truffle v5.4.11 and ganache v2.5.4
  2. Run ganache and create a new network on port 8545
  3. Cd to project root
  4. Install openzeppelin/contracts version 4.3.2. Run: `npm install @openzeppelin/contracts` 

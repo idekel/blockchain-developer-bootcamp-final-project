@@ -65,6 +65,24 @@ export const getBalance = createAsyncThunk('web3/getBalance', async () => {
     return balance
 })
 
+export const getContractFee = createAsyncThunk('web3/getContractFee', async () => {
+    const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+    const method = pos.methods.feeInBasisPoints()
+    const fee = await method.call()
+    return fee
+})
+
+export const setContractFee = createAsyncThunk('web3/setContractFee', async (newFee) => {
+    const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
+    try {
+        const ret = await pos.methods.setContractFee(newFee)
+            .send({ from: window.ethereum.selectedAddress})
+    } catch (e) {
+        return false
+    }
+    return true
+})
+
 export const getInvoiceProducts = createAsyncThunk('web3/getInvoiceProducts', (id) => {
     const pos = new web3.eth.Contract(POS_ABI, POS_ADDR)
     return pos.methods.getInvoiceProducts(id).call()

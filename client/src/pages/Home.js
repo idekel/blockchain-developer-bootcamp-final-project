@@ -13,6 +13,9 @@ function UserSelector() {
             <div className="clientButoon">
                 <Link to="/client">Client</Link>
             </div>
+            <div className="clientButoon">
+                <Link to="/owner">Owner</Link>
+            </div>
         </Col>
     </Row>
 }

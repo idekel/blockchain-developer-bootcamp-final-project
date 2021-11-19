@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Home from './pages/Home'
 import { MerchantHome } from './pages/Merchant'
 import { ClientHome } from './pages/Client'
+import { Owner } from './pages/Owner'
 import { closeNotitfication } from './redux/appSlice'
 
 function PrivateRoute({ children, path }) {
@@ -61,6 +62,9 @@ function App() {
           </PrivateRoute>
           <PrivateRoute exact path="/client">
             <ClientHome />
+          </PrivateRoute>
+          <PrivateRoute exact path="/owner">
+            <Owner />
           </PrivateRoute>
         </Switch>
       </Router>
