@@ -1,25 +1,26 @@
 import { useEffect, useState } from 'react'
-import { Row, Col, Form, Button, Modal, Table, Alert } from 'react-bootstrap'
-import { useDispatch } from 'react-redux'
+import { Row, Col, Form, Button } from 'react-bootstrap'
+import { useDispatch, useSelector } from 'react-redux'
 import { loadInvoice, listenForNewInvoices } from '../redux/web3Slice'
 import { InvoiceDetail } from '../components/InvoiceDetail'
+import { setIsLoading, sendNotification } from '../redux/appSlice'
 
 
 export const ClientHome = () => {
     const dispatch = useDispatch()
     const [invoiceId, setInvoiceId] = useState(0)
     const [invoice, setInvoice] = useState(null)
-    const [showInvoicePaySuccess, setShowInvoicePaySuccess] = useState(false)
-    const [showInvoicePayFail, setShowInvoicePayFail] = useState(false)
+    const isLoading = useSelector(state => state.app.isLoading)
 
     useEffect(() => {
         dispatch(listenForNewInvoices())
     }, [])
 
     const getInvoiceById = async () => {
+        dispatch(setIsLoading(true))
         const ret = await dispatch(loadInvoice(invoiceId))
-        console.log(ret.payload)
         setInvoice(ret.payload)
+        dispatch(setIsLoading(false))
     }
 
     let invoiceModal = null
@@ -27,29 +28,13 @@ export const ClientHome = () => {
         const onHide = (ret) => {
             setInvoice(null)
             if (ret){
-                setShowInvoicePaySuccess(true)
+                dispatch(sendNotification({ message: `Trasanction successful.`, title: 'Success' }))
             } else if (ret === false){
-                setShowInvoicePayFail(true)
+                dispatch(sendNotification({ message: `Trasanction failed.`, title: 'Error', type: 'danger' }))
             }
-            setTimeout(() => {
-                setShowInvoicePaySuccess(false)
-                setShowInvoicePayFail(false)
-            }, 5000)
         }
         const args = { invoice, onHide }
         invoiceModal = <InvoiceDetail {...args} />
-    }
-
-    let payInvoiceAlert = null
-    if (showInvoicePaySuccess){
-        payInvoiceAlert = <Alert variant="success">
-        Invoice paid successfuly
-      </Alert>
-    }
-    else if (showInvoicePayFail){
-        payInvoiceAlert = <Alert variant="danger">
-        Failed to pay Invoice
-      </Alert>
     }
 
     return <>
@@ -64,17 +49,12 @@ export const ClientHome = () => {
         <br />
         <Row>
             <Col md={4}>
-                <Button onClick={getInvoiceById}>
+                <Button disabled={isLoading} onClick={getInvoiceById}>
                     Load
                 </Button>
             </Col>
         </Row>
         <br />
-        <Row>
-            <Col md={4}>
-                {payInvoiceAlert}
-            </Col>
-        </Row>
         {invoiceModal}
     </>
 }

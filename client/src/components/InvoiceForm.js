@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Row, Col, Form, Button, Modal, Table } from 'react-bootstrap'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { createInvoice } from '../redux/web3Slice'
-import { sendNotification } from '../redux/appSlice'
+import { sendNotification, setIsLoading } from '../redux/appSlice'
 import Web3 from 'web3'
 
 
@@ -69,8 +69,10 @@ export const InvoiceForm = () => {
     const [discounts, setDiscount] = useState('0')
     const [showAddProduct, setShowAddProduct] = useState(false)
     const [products, setProducts] = useState([])
+    const isLoading = useSelector(state => state.app.isLoading)
 
     const submitInvoice = async () => {
+        dispatch(setIsLoading(true))
         const { payload } = await dispatch(createInvoice({ discounts: Web3.utils.toWei(discounts), client, products }))
         if (payload === true) {
             dispatch(sendNotification({ message: 'Transaction completed successfuly.', title: 'Success' }))
@@ -80,6 +82,7 @@ export const InvoiceForm = () => {
         } else {
             dispatch(sendNotification({ message: `Trasanction failed. Error: ${payload.message}`, title: 'Error', type: 'danger' }))
         }
+        dispatch(setIsLoading(false))
     }
 
     const onHideProductForm = () => setShowAddProduct(false)
@@ -147,7 +150,7 @@ export const InvoiceForm = () => {
                 </Table>
                 {productForm}
                 <br />
-                <Button onClick={submitInvoice}>Enviar</Button>
+                <Button disabled={isLoading} onClick={submitInvoice}>Enviar</Button>
             </Col>
         </Row>
     </>

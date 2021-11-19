@@ -131,11 +131,9 @@ export const web3Slice = createSlice({
             console.log(action.error)
         })
         builder.addCase(loadInvoice.pending, (state, action) => {
-            debugger
             state.loadingInvoice = true;
         })
         builder.addCase(loadInvoice.fulfilled, (state, action) => {
-            debugger
             state.loadingInvoice = false;
         })
     },

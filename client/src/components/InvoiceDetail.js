@@ -1,27 +1,32 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Web3 from 'web3'
-import { payInvoice, getInvoiceProducts } from "../redux/web3Slice"
-import { Row, Col, Form, Button, Modal, Table, Alert } from "react-bootstrap"
+import { payInvoice, getInvoiceProducts } from '../redux/web3Slice'
+import { Row, Col, Button, Modal, Table } from 'react-bootstrap'
+import { setIsLoading } from '../redux/appSlice'
 
 
 export const InvoiceDetail = (props) => {
 
     const [products, setProducts] = useState([])
     const dispatch = useDispatch()
+    const isLoading = useSelector(state => state.app.isLoading)
 
     const loadProducts = async () => {
+        dispatch(setIsLoading(true))
         const ret = await dispatch(getInvoiceProducts(props.invoice.id))
-        console.log(ret)
         setProducts(ret.payload ?? [])
+        dispatch(setIsLoading(false))
     }
 
     const onPayInvoice = async () => {
+        dispatch(setIsLoading(true))
         const ret = await dispatch(payInvoice(props.invoice.id))
+        dispatch(setIsLoading(false))
         props.onHide(ret.payload)
     }
 
-    let child = <Button onClick={products.length == 0 ? loadProducts : () => setProducts([])}>{products.length == 0 ? 'Load products' : 'Hide products'}</Button>
+    let child = <Button disabled={isLoading} onClick={products.length == 0 ? loadProducts : () => setProducts([])}>{products.length == 0 ? 'Load products' : 'Hide products'}</Button>
     let productsTable = null
 
     if (products.length > 0) {
@@ -77,7 +82,7 @@ export const InvoiceDetail = (props) => {
                         {child}
                     </Col>
                     <Col>
-                        {showPayButton && <Button onClick={onPayInvoice}>Pay invoice</Button>}
+                        {showPayButton && <Button disabled={isLoading} onClick={onPayInvoice}>Pay invoice</Button>}
                     </Col>
                 </Row>
             </Modal.Body>
