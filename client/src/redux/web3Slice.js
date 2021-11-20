@@ -15,7 +15,7 @@ export const connectToMetaMask = createAsyncThunk('web3/connectToMetaMask',
     async (_, thunkAPI) => {
         await window.ethereum.request({ method: 'eth_requestAccounts' })
         web3 = new Web3(window.ethereum);
-        thunkAPI.dispatch(setConnected(true))
+        await thunkAPI.dispatch(setConnected(true))
     })
 
 export const listenForNewInvoices = createAsyncThunk('web3/listenForNewInvoices',

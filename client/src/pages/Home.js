@@ -3,6 +3,8 @@ import { Button, Row, Col } from 'react-bootstrap'
 import { connectToMetaMask } from '../redux/web3Slice'
 import './App.scss'
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { setIsLoading } from '../redux/appSlice'
 
 function UserSelector() {
     return <Row>
@@ -25,15 +27,33 @@ const Home = () => {
     const { connected } = useSelector(state => {
         return state.web3
     })
+    const isLoading = useSelector(state => state.app.isLoading)
+
+    const doConnectToMetaMask = async () => {
+        if (!connected) {
+            dispatch(setIsLoading(true))
+            try {
+                await dispatch(connectToMetaMask())
+            } finally {
+                dispatch(setIsLoading(false))
+            }
+        }
+    }
+
+    useEffect(doConnectToMetaMask)
 
     let child = <Row>
         <Col md={3}>
-            <Button onClick={() => dispatch(connectToMetaMask())}>Connecto to meta mask</Button>
+            <Button onClick={doConnectToMetaMask}>Connecto to meta mask</Button>
         </Col>
     </Row>
 
     if (connected) {
         child = <UserSelector></UserSelector>
+    } else if (isLoading) {
+        child = <div>
+            <h3>Connecting to metamask...</h3>
+        </div>
     }
 
     return <div className="AppContainer">{child}</div>;

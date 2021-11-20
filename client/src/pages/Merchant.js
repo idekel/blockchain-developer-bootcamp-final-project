@@ -45,7 +45,8 @@ export const MerchantHome = () => {
     return <Tabs defaultActiveKey="invoices">
         <Tab eventKey="invoices" title="My Invoices">
             {balanceSection}
-            <h1>List</h1>
+            <h1>List of invoices</h1>
+            <hr />
             <InvoiceList />
         </Tab>
         <Tab eventKey="invoice-form" title="Create new invoice">

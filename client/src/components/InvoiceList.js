@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Table } from 'react-bootstrap'
+import { Table, Alert } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
 import Web3 from 'web3'
 import { getInvoices } from '../redux/web3Slice'
@@ -27,15 +27,19 @@ export const InvoiceList = () => {
         invoiceDetail = <InvoiceDetail onHide={onHide} invoice={invoice} showPayButton={false} />
     }
 
-    return <div className="InvoiceList">
-        <Table>
+    let child = <Alert variant="warning">
+        <h3>You don't have invoices yet</h3>
+    </Alert> 
+
+    if (invoices.length > 0) {
+        child = <Table striped bordered hover>
             <thead>
                 <tr>
-                    <td>beneficiary</td>
-                    <td>client</td>
-                    <td>total</td>
-                    <td>Status</td>
-                    <td></td>
+                    <th>Beneficiary</th>
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -48,6 +52,10 @@ export const InvoiceList = () => {
                 </tr>)}
             </tbody>
         </Table>
+    }
+
+    return <div className="InvoiceList">
+        {child}
         {invoiceDetail}
     </div>
 }
