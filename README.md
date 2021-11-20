@@ -37,3 +37,7 @@ The project will have 3 actors:
  7. Cd to client directory
  8. Run: `npm install` to install React dependencies
  9. Run: `npm run start` to run the UI
+
+
+ # Public address for certification
+ `0xc0DD99B1a16b6d29Da933a56777fE590a0EeA2FF`
