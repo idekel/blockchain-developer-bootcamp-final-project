@@ -21,8 +21,11 @@ The project will have 3 actors:
 3. The client, buyer or consumer which is the person receiving the goods and services and the one who is going to pay the invoice 
 
 
-# Screen Cast
+## Screen Cast
 https://www.loom.com/share/2e623c04beb24d8f87984855e09964a9
+
+## Frontend public URL
+https://idekel.github.io/blockchain-developer-bootcamp-final-project/
 
 ## Project directory structure
  The project contain 3 main directories.
