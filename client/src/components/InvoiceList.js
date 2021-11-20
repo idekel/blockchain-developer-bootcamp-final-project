@@ -35,6 +35,7 @@ export const InvoiceList = () => {
         child = <Table striped bordered hover>
             <thead>
                 <tr>
+                    <th>ID#</th>
                     <th>Beneficiary</th>
                     <th>Client</th>
                     <th>Total</th>
@@ -44,6 +45,7 @@ export const InvoiceList = () => {
             </thead>
             <tbody>
                 {invoices.map(invoice => <tr>
+                    <td>{invoice.id}</td>
                     <td>{invoice.beneficiary}</td>
                     <td>{invoice.buyer}</td>
                     <td>{Web3.utils.fromWei(invoice.total)}</td>
