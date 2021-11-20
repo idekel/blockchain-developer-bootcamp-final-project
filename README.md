@@ -21,6 +21,9 @@ The project will have 3 actors:
 3. The client, buyer or consumer which is the person receiving the goods and services and the one who is going to pay the invoice 
 
 
+# Screen Cast
+https://www.loom.com/share/2e623c04beb24d8f87984855e09964a9
+
 ## Project directory structure
  The project contain 3 main directories.
  * The contracts directory: This is where all the solidity code lives. Here you can find the POS.sol which is where the POS contract is. The POS contract is the heart of the system.
