@@ -16,8 +16,8 @@ A decentralized point of sale (POS)
 
 ### How will this Project work?
 The project will have 3 actors:
-1. The owner: The account that created the Invoice.
-2. The Beneficiary: The account that will receive the funds once the invoice is paid. This account could the same owner account but having a different field for that allows the flexibility to intermediary e-commerce platforms to set a different account as the beneficiary of the funds if desired.
+1. The Owner of the invoice: The account that created the Invoice. Can be same as Beneficiary/Merchant.
+2. The Beneficiary or Merchant: The account that will receive the funds once the invoice is paid. This account could the same owner account but having a different field for that allows the flexibility to intermediary e-commerce platforms to set a different account as the beneficiary of the funds if desired.
 3. The client, buyer or consumer which is the person receiving the goods and services and the one who is going to pay the invoice 
 
 
