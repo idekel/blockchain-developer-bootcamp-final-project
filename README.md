@@ -45,5 +45,8 @@ https://idekel.github.io/blockchain-developer-bootcamp-final-project/
  9. Run: `npm run start` to run the UI
 
 
- # Public address for certification
+ ## Public address for certification
  `0xc0DD99B1a16b6d29Da933a56777fE590a0EeA2FF`
+
+ # Notes:
+ * If you have Mac OS Version 12.0.1 the frontend won't compile since scss does not support this version yet
