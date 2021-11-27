@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { Button, Row, Col } from 'react-bootstrap'
-import { connectToMetaMask } from '../redux/web3Slice'
+import { connectToMetaMask, initMetaMask } from '../redux/web3Slice'
 import './App.scss'
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -10,13 +10,13 @@ function UserSelector() {
     return <Row>
         <Col md={4}>
             <div className="clientButoon">
-                <Link to="/merchant">Merchant</Link>
+                <Link to="/blockchain-developer-bootcamp-final-project/merchant">Merchant</Link>
             </div>
             <div className="clientButoon">
-                <Link to="/client">Client</Link>
+                <Link to="/blockchain-developer-bootcamp-final-project/client">Client</Link>
             </div>
             <div className="clientButoon">
-                <Link to="/owner">Owner</Link>
+                <Link to="/blockchain-developer-bootcamp-final-project/owner">Owner</Link>
             </div>
         </Col>
     </Row>
@@ -40,7 +40,9 @@ const Home = () => {
         }
     }
 
-    useEffect(doConnectToMetaMask)
+    useEffect(() => {
+        dispatch(initMetaMask())
+    }, [])
 
     let child = <Row>
         <Col md={3}>

@@ -11,10 +11,10 @@ const initialState = {
 let web3 = null
 
 
+
 export const connectToMetaMask = createAsyncThunk('web3/connectToMetaMask',
     async (_, thunkAPI) => {
         await window.ethereum.request({ method: 'eth_requestAccounts' })
-        web3 = new Web3(window.ethereum);
         await thunkAPI.dispatch(setConnected(true))
     })
 
@@ -140,5 +140,17 @@ export const web3Slice = createSlice({
 })
 
 export const { setConnected } = web3Slice.actions
+
+export const initMetaMask = createAsyncThunk('web/initMetaMask', async (_, thunkAPI) => {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+    } else if (window.web3) {
+        web3 = new Web3(window.web3.currentProvider);
+    };
+    const ret = await web3.eth.getAccounts()
+    if (ret.length > 0){
+        thunkAPI.dispatch(setConnected(true))
+    }
+})
 
 export default web3Slice.reducer

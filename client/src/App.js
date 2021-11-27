@@ -47,23 +47,22 @@ const NotificationCenter = () => {
   </ToastContainer>
 }
 
-
 function App() {
   return (
 
     <Container>
       <Router>
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/blockchain-developer-bootcamp-final-project/"> 
             <Home />
           </Route>
-          <PrivateRoute exact path="/merchant">
+          <PrivateRoute exact path="/blockchain-developer-bootcamp-final-project/merchant">
             <MerchantHome />
           </PrivateRoute>
-          <PrivateRoute exact path="/client">
+          <PrivateRoute exact path="/blockchain-developer-bootcamp-final-project/client">
             <ClientHome />
           </PrivateRoute>
-          <PrivateRoute exact path="/owner">
+          <PrivateRoute exact path="/blockchain-developer-bootcamp-final-project/owner">
             <Owner />
           </PrivateRoute>
         </Switch>
